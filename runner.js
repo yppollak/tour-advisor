@@ -3,7 +3,7 @@
    already present in this browser. No credentials are stored or transmitted. */
 
 const PSA = "https://secure.psasquashtour.com";
-const DEFAULT_ENDPOINT = "https://psa-ranking-planner.vercel.app";
+const DEFAULT_ENDPOINT = "https://tour-advisor.vercel.app";
 const CONCURRENCY = 3;      // parallel tournaments; deliberately gentle
 const PAUSE_MS = 120;       // spacing between requests inside a worker
 const BATCH = 25;           // divisions per upload
@@ -63,7 +63,16 @@ async function getText(path, tries = 2){
   throw lastErr;
 }
 
-const doc = html => new DOMParser().parseFromString(html, "text/html");
+// Parse a SecurePSA page into an inert document.
+//
+// The scripts and stylesheets come out first. Chrome's preload scanner runs over
+// a DOMParser document and tries to fetch what it finds there — SecurePSA ships a
+// TinyMCE bundle on every page — and the extension's content security policy
+// then blocks the request and logs an error. Nothing breaks, but it buried one
+// console error per page under everything worth reading. We only ever look at
+// tables and selects, so dropping both is free.
+const INERT = /<script\b[^>]*>[\s\S]*?<\/script\s*>|<script\b[^>]*\/>|<link\b[^>]*>/gi;
+const doc = html => new DOMParser().parseFromString(String(html).replace(INERT, ""), "text/html");
 
 /* ---------- parsers (verified against live SecurePSA markup) ---------- */
 const MONTHS = { Jan:0, Feb:1, Mar:2, Apr:3, May:4, Jun:5, Jul:6, Aug:7, Sep:8, Oct:9, Nov:10, Dec:11 };
@@ -438,4 +447,26 @@ async function run(){
 }
 
 $("#runBtn").addEventListener("click", run);
-loadSettings();
+
+// Started from the Refresh button on the site rather than the toolbar icon.
+// The token has to be saved already — asking for it here would defeat the point
+// of a one-click refresh, so an unconfigured extension says so and stops.
+async function autoRun(){
+  const s = await chrome.storage.local.get(["token"]);
+  if(!(s.token || "").trim()){
+    $("#result").innerHTML = '<span style="color:var(--accent)">Paste your ingest token and press Save first '
+      + '\u2014 then the Refresh button on Tour Advisor will start a run straight away.</span>';
+    return;
+  }
+  log("Started from Tour Advisor.", "ok");
+  run();
+}
+
+// A second Refresh while this tab is already open should not stack two runs.
+chrome.runtime.onMessage.addListener(msg => {
+  if(msg && msg.action === "sync" && !$("#runBtn").disabled) autoRun();
+});
+
+loadSettings().then(() => {
+  if(new URLSearchParams(location.search).get("auto") === "1") autoRun();
+});

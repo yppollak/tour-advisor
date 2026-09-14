@@ -1,14 +1,25 @@
 {
   "manifest_version": 3,
-  "name": "PSA Sync",
-  "version": "1.1.0",
-  "description": "Collects world rankings and entry lists from SecurePSA and sends them to the PSA Ranking Planner.",
+  "name": "Tour Advisor Sync",
+  "version": "1.2.0",
+  "description": "Collects world rankings and entry lists from SecurePSA and sends them to Tour Advisor.",
   "permissions": ["storage"],
   "host_permissions": [
     "https://secure.psasquashtour.com/*",
+    "https://tour-advisor.vercel.app/*",
     "https://psa-ranking-planner.vercel.app/*"
   ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://tour-advisor.vercel.app/*",
+        "https://psa-ranking-planner.vercel.app/*"
+      ],
+      "js": ["bridge.js"],
+      "run_at": "document_idle"
+    }
+  ],
   "background": { "service_worker": "background.js" },
-  "action": { "default_title": "PSA Sync" },
+  "action": { "default_title": "Tour Advisor Sync" },
   "icons": { "128": "icon128.png" }
 }
