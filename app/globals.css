@@ -73,6 +73,9 @@ h1,h2,h3{margin:0;font-family:var(--display);font-weight:600;letter-spacing:.01e
 .freshbar .fb.stale i{background:var(--plan)}
 .freshbar .fb.stale b{color:var(--plan)}
 .freshbar .fbnote{margin-left:auto;font-style:italic;opacity:.8}
+.freshbar .fbrun{font-size:12px;color:var(--muted)}
+.freshbar .fbrun.warn{color:var(--accent)}
+.freshbar .btn{padding:2px 9px;font-size:12px}
 @media (max-width:760px){.freshbar .fbnote{display:none}}
 
 /* Sortable Planner headers. The arrow is a fixed-width slot so a column does not
@@ -243,16 +246,16 @@ tr.dropped td{color:var(--muted)}
 #pinbar{position:fixed;top:0;left:0;right:0;z-index:60;background:var(--surface);
   border-bottom:1px solid var(--line-strong);box-shadow:0 2px 10px rgba(0,0,0,.06)}
 #pinbar[hidden]{display:none}
-#pinbar .in{max-width:var(--page);margin:0 auto;padding:8px 20px;display:flex;align-items:baseline;gap:0;flex-wrap:wrap}
-#pinbar .m{display:flex;align-items:baseline;gap:6px;font-size:13px;color:var(--muted);white-space:nowrap;
+#pinbar .in{max-width:var(--page);margin:0 auto;padding:9px 20px 8px;display:flex;align-items:baseline;gap:0;flex-wrap:wrap}
+#pinbar .m{display:flex;align-items:baseline;gap:7px;font-size:13px;color:var(--muted);white-space:nowrap;
   padding:0 26px;border-right:1px solid var(--line)}
 #pinbar .m:first-child{padding-left:0}
-#pinbar .m:nth-child(1){flex:0 0 212px} #pinbar .m:nth-child(2){flex:0 0 190px}
-#pinbar .m:nth-child(3){flex:0 0 190px} #pinbar .m:nth-child(4){flex:0 0 228px}
-#pinbar .m:nth-child(5){flex:0 0 200px}
-#pinbar .m .dl{display:inline-block;min-width:54px;font-size:12px;font-weight:600;
+#pinbar .m:nth-child(1){flex:0 0 228px} #pinbar .m:nth-child(2){flex:0 0 202px}
+#pinbar .m:nth-child(3){flex:0 0 202px} #pinbar .m:nth-child(4){flex:0 0 240px}
+#pinbar .m:nth-child(5){flex:0 0 212px}
+#pinbar .m .dl{display:inline-block;min-width:58px;font-size:12.5px;font-weight:600;
   font-variant-numeric:tabular-nums;color:var(--dl-ink)}
-#pinbar .m b{font-size:17px;color:var(--ink);font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums}
+#pinbar .m b{font-size:23px;color:var(--ink);font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
 #pinbar .m b.up{color:var(--yes)} #pinbar .m b.down{color:var(--accent)}
 #pinbar .who{margin-left:auto;padding-left:20px;font-size:12px;color:var(--muted)}
 #pinbar .tabsrow{border-top:1px solid var(--line);max-width:var(--page);margin:0 auto;padding:0 20px;display:flex;gap:2px;overflow-x:auto}
