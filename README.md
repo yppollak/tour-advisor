@@ -19,7 +19,7 @@ tournament schedule and rankings snapshots.
 ## Setup checklist
 
 1. **Supabase → SQL Editor**: paste `supabase/schema.sql` (edit the admin e-mail first) and run it.
-2. **Supabase → SQL Editor**: paste `supabase/entries.sql`, then `supabase/rankings.sql`, then `supabase/schedule.sql`, and run each.
+2. **Supabase → SQL Editor**: paste `supabase/entries.sql`, then `supabase/rankings.sql`, then `supabase/schedule.sql`, then `supabase/one_player.sql`, and run each.
 3. **Supabase → Authentication → Providers → Google**: enable, paste the Google OAuth client ID and secret.
 4. **Supabase → Authentication → URL Configuration**: Site URL = your Vercel URL; add `https://YOUR-SITE.vercel.app/auth/callback` to Redirect URLs.
 5. **Vercel → Project → Settings → Environment Variables**: `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Supabase → Project Settings → API Keys).

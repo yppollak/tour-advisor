@@ -5,6 +5,8 @@
 -- 1. Each account gets a personal ingest token. The browser extension sends it
 --    instead of a password; it identifies the account and nothing else.
 alter table public.profiles add column if not exists ingest_token text unique;
+-- Migration, for anyone who already ran an earlier version of this file.
+alter table public.entry_lists add column if not exists qual_points jsonb;
 
 update public.profiles
 set ingest_token = replace(gen_random_uuid()::text, '-', '') || replace(gen_random_uuid()::text, '-', '')
@@ -35,6 +37,11 @@ create table if not exists public.entry_lists (
   end_date        date,
   status          text,
   entries         jsonb not null default '[]'::jsonb,
+  -- What PSA publishes for this event's qualifying draw, where it has one:
+  -- {"Round 1": 70, "Semi-final": 90, "Final (Runner-up)": 110,
+  --  "Qualifier (Winner)": 130}. It is not a fixed fraction of the main draw
+  -- and most events publish none at all, so it is null far more often than not.
+  qual_points     jsonb,
   content_hash    text,
   captured_at     timestamptz not null default now(),
   captured_by     uuid references auth.users(id) on delete set null,
@@ -107,11 +114,13 @@ begin
 
     insert into public.entry_lists (
       tournament_slug, division_id, tournament_name, division_name, level,
-      start_date, end_date, status, entries, content_hash, captured_at, captured_by)
+      start_date, end_date, status, entries, qual_points, content_hash, captured_at, captured_by)
     values (
       v_item->>'slug', v_item->>'division_id', v_item->>'name', v_item->>'division_name', v_item->>'level',
       nullif(v_item->>'start_date', '')::date, nullif(v_item->>'end_date', '')::date, v_item->>'status',
-      coalesce(v_item->'entries', '[]'::jsonb), v_hash, now(), v_user)
+      coalesce(v_item->'entries', '[]'::jsonb),
+      case when jsonb_typeof(v_item->'qual_points') = 'object' then v_item->'qual_points' else null end,
+      v_hash, now(), v_user)
     on conflict (tournament_slug, division_id) do update set
       tournament_name = excluded.tournament_name,
       division_name   = excluded.division_name,
@@ -120,6 +129,7 @@ begin
       end_date        = excluded.end_date,
       status          = excluded.status,
       entries         = excluded.entries,
+      qual_points     = excluded.qual_points,
       content_hash    = excluded.content_hash,
       captured_at     = excluded.captured_at,
       captured_by     = excluded.captured_by;

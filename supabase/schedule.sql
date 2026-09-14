@@ -21,6 +21,12 @@ create table if not exists public.schedule (
   level_type  text,
   level       text,
   restricted  boolean not null default false,
+  -- Why, in PSA's own words, where the tournament page says: "Territory Event -
+  -- Only players residing in the following nations can enter: Canada". It is
+  -- prose, not a list of countries, and it is deliberately not parsed into one —
+  -- the phrasing varies far too much for that to be anything but a confident
+  -- wrong answer about who may enter.
+  restriction text,
   status      text,
   start_date  date,
   end_date    date,
@@ -29,6 +35,8 @@ create table if not exists public.schedule (
   primary key (psa_slug, gender)
 );
 create index if not exists schedule_date_idx on public.schedule (start_date);
+-- Migration, for anyone who ran the first version of this file.
+alter table public.schedule add column if not exists restriction text;
 
 alter table public.schedule enable row level security;
 drop policy if exists "schedule: read all" on public.schedule;
@@ -82,7 +90,7 @@ begin
 
     insert into public.schedule (
       psa_slug, gender, name, city, country, level_type, level,
-      restricted, status, start_date, end_date, capture_id, captured_at)
+      restricted, restriction, status, start_date, end_date, capture_id, captured_at)
     values (
       v_row->>'psa_slug',
       v_row->>'gender',
@@ -92,6 +100,7 @@ begin
       nullif(v_row->>'level_type', ''),
       nullif(v_row->>'level', ''),
       coalesce((v_row->>'restricted')::boolean, false),
+      nullif(v_row->>'restriction', ''),
       nullif(v_row->>'status', ''),
       nullif(v_row->>'start_date', '')::date,
       nullif(v_row->>'end_date', '')::date,
@@ -104,6 +113,7 @@ begin
       level_type  = excluded.level_type,
       level       = excluded.level,
       restricted  = excluded.restricted,
+      restriction = excluded.restriction,
       status      = excluded.status,
       start_date  = excluded.start_date,
       end_date    = excluded.end_date,
